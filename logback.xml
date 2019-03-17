@@ -1,0 +1,47 @@
+
+<configuration>
+    <conversionRule conversionWord="host" converterClass="IpCustomProperty" />
+    <conversionRule conversionWord="tag" converterClass="LogTagCustomProperty" />
+    <appender name="kafkaAppender" class="KafkaAppender">
+        <encoder>
+            <pattern>%tag %host %d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{60} %X{sourceThread} - %msg</pattern>
+        </encoder>
+        <topic>mytopic</topic>
+        <brokerList>********:port,******:port</brokerList>
+    </appender>
+
+    <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.file}</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${log.file}.%d{yyyy-MM-dd}.%i</fileNamePattern>
+            <maxHistory>50</maxHistory>
+            <maxFileSize>10MB</maxFileSize>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{60} %X{sourceThread} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="info">
+        <appender-ref ref="kafkaAppender" />
+        <appender-ref ref="file" />
+    </root>
+
+    <logger name="akka" level="INFO">
+        <appender-ref ref="file"/>
+    </logger>
+    <logger name="org.apache.kafka" level="INFO">
+        <appender-ref ref="file"/>
+    </logger>
+    <logger name="org.apache.hadoop" level="INFO">
+        <appender-ref ref="file"/>
+    </logger>
+    <logger name="org.apache.zookeeper" level="INFO">
+        <appender-ref ref="file"/>
+    </logger>
+
+    <!-- Suppress the irrelevant (wrong) warnings from the Netty channel handler -->
+    <logger name="org.apache.flink.shaded.akka.org.jboss.netty.channel.DefaultChannelPipeline" level="ERROR">
+        <appender-ref ref="file"/>
+    </logger>
+</configuration>
